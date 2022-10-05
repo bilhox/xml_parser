@@ -136,3 +136,4 @@ for part in parts:
         element = pile.unstack_element()
         element.content += part[1:-1]
         pile.stack_element(element)
+
