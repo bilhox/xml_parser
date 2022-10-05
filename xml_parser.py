@@ -83,57 +83,78 @@ def extract_datas(string):
     else:
         return string , {}
 
-string = ""
+def parse(file):
+    """This function allows you to convert an xml file to a Tree"""
+    string = ""
 
-with open("this.xml" , newline="",mode="r",encoding="utf-8") as reader:
+    with open(file=file , newline="",mode="r",encoding="utf-8") as reader:
 
-    while (a := reader.readline()):
-        l = a.strip("\n")
-        l = l.strip("\r")
-        l = l.strip()
-        string += l
-    
-    string = string[string.find(">")+1:]
-    string = string.strip()
+        while (a := reader.readline()):
+            l = a.strip("\n")
+            l = l.strip("\r")
+            l = l.strip()
+            string += l
+        
+        first_tag = string[string.find("<"):string.find(">")+1]
+        if first_tag[1] == "?":
+            string = string.removeprefix(first_tag)
+        string = string.strip()
 
-parts = []
-index = 0
-while(string.find("<" , index , len(string)) != -1):
-    if index != 0:
-        content = "<"+string[index:string.find("<" , index , len(string))]+">"
-        parts.append(content)
-    part = string[string.find("<" , index , len(string))+1:string.find(">" , index , len(string))]
-    index = string.find(">" , index , len(string))+1
-    parts.append(part)
+    parts = []
+    index = 0
+    stack_size = 0
+    while(string.find("<" , index , len(string)) != -1):
+        if index != 0:
+            content = "<"+string[index:string.find("<" , index , len(string))]+">"
+            parts.append(content)
+        part = string[string.find("<" , index , len(string))+1:string.find(">" , index , len(string))]
 
-print(parts)
+        if (part[0] == "/") or (part[-1] == "/"):
+            stack_size +=1
 
-tree = None
+        index = string.find(">" , index , len(string))+1
+        parts.append(part)
 
-pile = Stack(100)
-for part in parts:
-    if "<" not in part and ">" not in part:
-        if pile.is_empty():
-            tree = Tree()
-            balise , attributes = extract_datas(part)
-            tree.tag = balise
-            tree.attributes = attributes
-            pile.stack_element(tree)
+    # This is the final tree you get at the end
+    tree = None
+
+    pile = Stack(stack_size)
+    for part in parts:
+        if "<" not in part and ">" not in part:
+            if pile.is_empty():
+                tree = Tree()
+                balise , attributes = extract_datas(part)
+                tree.tag = balise
+                tree.attributes = attributes
+                pile.stack_element(tree)
+            else:
+                if part[-1] != "/":
+                    if part[0] == "/":
+                        pile.unstack_element()
+                        continue
+                    
+                    t = pile.unstack_element()
+                    child = Tree()
+                    balise , attributes = extract_datas(part)
+                    child.tag = balise
+                    child.attributes = attributes
+                    t.addchild(child)
+                    pile.stack_element(t)
+                    pile.stack_element(child)
+                else:
+
+                    child = Tree()
+                    balise , attributes = extract_datas(part[0:-1])
+                    child.tag = balise
+                    child.attributes = attributes
+                    t = pile.unstack_element()
+                    t.addchild(child)
+                    pile.stack_element(t)
         else:
-            if "/" in part:
-                pile.unstack_element()
-                continue
-            
-            tree = pile.unstack_element()
-            child = Tree()
-            balise , attributes = extract_datas(part)
-            child.tag = balise
-            child.attributes = attributes
-            tree.addchild(child)
-            pile.stack_element(tree)
-            pile.stack_element(child)
-    else:
-        element = pile.unstack_element()
-        element.content += part[1:-1]
-        pile.stack_element(element)
+            element = pile.unstack_element()
+            element.content += part[1:-1]
+            pile.stack_element(element)
+    
+    return tree
 
+t = parse("this.xml")
