@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root value="de" other="ded" de=''>
-    <child val=" pomme" val2=' banane  ' val3="    poire  " val4='zhflizhflihalf'>
+    <child val=" pomme" val2        =' banane  ' val3  ="    poire  " val4='zhflizhflihalf'>
+        Donc voilà j'aime les chats
     </child>
     <child>
-        
+        Et enfin j'aime le thé !!!
     </child>
 </root>

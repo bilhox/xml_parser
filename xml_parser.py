@@ -35,7 +35,8 @@ class Stack :
 class Tree():
 
     def __init__(self):
-        self.value = None
+        self.tag = None
+        self.content = ""
         self.childs = []
         self.attributes = {}
 
@@ -84,7 +85,7 @@ def extract_datas(string):
 
 string = ""
 
-with open("this.xml" , newline="",mode="r") as reader:
+with open("this.xml" , newline="",mode="r",encoding="utf-8") as reader:
 
     while (a := reader.readline()):
         l = a.strip("\n")
@@ -97,8 +98,11 @@ with open("this.xml" , newline="",mode="r") as reader:
 
 parts = []
 index = 0
-while((part := string[string.find("<" , index , len(string))+1:string.find(">" , index , len(string))]) 
-    and string.find("<" , index , len(string)) != -1):
+while(string.find("<" , index , len(string)) != -1):
+    if index != 0:
+        content = "<"+string[index:string.find("<" , index , len(string))]+">"
+        parts.append(content)
+    part = string[string.find("<" , index , len(string))+1:string.find(">" , index , len(string))]
     index = string.find(">" , index , len(string))+1
     parts.append(part)
 
@@ -108,24 +112,27 @@ tree = None
 
 pile = Stack(100)
 for part in parts:
-    if pile.is_empty():
-        tree = Tree()
-        balise , attributes = extract_datas(part)
-        tree.value = balise
-        tree.attributes = attributes
-        pile.stack_element(tree)
+    if "<" not in part and ">" not in part:
+        if pile.is_empty():
+            tree = Tree()
+            balise , attributes = extract_datas(part)
+            tree.tag = balise
+            tree.attributes = attributes
+            pile.stack_element(tree)
+        else:
+            if "/" in part:
+                pile.unstack_element()
+                continue
+            
+            tree = pile.unstack_element()
+            child = Tree()
+            balise , attributes = extract_datas(part)
+            child.tag = balise
+            child.attributes = attributes
+            tree.addchild(child)
+            pile.stack_element(tree)
+            pile.stack_element(child)
     else:
-        if "/" in part:
-            pile.unstack_element()
-            continue
-        
-        tree = pile.unstack_element()
-        child = Tree()
-        balise , attributes = extract_datas(part)
-        child.value = balise
-        child.attributes = attributes
-        tree.addchild(child)
-        pile.stack_element(tree)
-        pile.stack_element(child)
-
-print(tree[0].attributes)
+        element = pile.unstack_element()
+        element.content += part[1:-1]
+        pile.stack_element(element)
