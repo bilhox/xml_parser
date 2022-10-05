@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root value="de" other="ded">
-    <child>
+<root value="de" other="ded" de=''>
+    <child val=" pomme" val2=' banane  ' val3="    poire  " val4='zhflizhflihalf'>
     </child>
     <child>
         

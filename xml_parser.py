@@ -63,11 +63,20 @@ def extract_datas(string):
             index += 1
 
             key = string[index:string.find("=" , index , len(string))]
-            value = string[string.find('"' , index , len(string))+1:string.find('"' , string.find('"' , index , len(string))+1 , len(string))]
 
-            index = string.find('"' , string.find('"' , index , len(string))+1 , len(string))
+            guillemet = string.find('"' , index , len(string))
+            apostrophe = string.find("'" , index , len(string))
 
-            attributes[key] = value
+            if ((apostrophe == -1) or ((guillemet != -1) and (guillemet < apostrophe))):
+                value = string[guillemet+1:string.find('"' , string.find('"' , index , len(string))+1 , len(string))]
+
+                index = string.find('"' , guillemet+1 , len(string))
+            else:
+                value = string[apostrophe+1:string.find("'" , string.find("'" , index , len(string))+1 , len(string))]
+
+                index = string.find("'" , apostrophe+1 , len(string))
+
+            attributes[key.strip()] = value
         
         return balise_type , attributes
     else:
@@ -119,8 +128,4 @@ for part in parts:
         pile.empiler(tree)
         pile.empiler(child)
 
-print(tree.attributes)
-# print(parts[0][0:5:-1])
-
-# print(parts)
-# print(string)
+print(tree[0].attributes)
