@@ -5,13 +5,13 @@ class Stack :
         self.size = size
         self.contenu = []
 
-    def empiler(self, element) :
+    def stack_element(self, element) :
         if self.is_full() :
             print("Impossible, the stack is full !")
         else :
             self.contenu.append(element)
 
-    def depiler(self) :
+    def unstack_element(self) :
         if self.is_empty() :
             print("Impossible, the stack is empty !")
         else :
@@ -113,19 +113,19 @@ for part in parts:
         balise , attributes = extract_datas(part)
         tree.value = balise
         tree.attributes = attributes
-        pile.empiler(tree)
+        pile.stack_element(tree)
     else:
         if "/" in part:
-            pile.depiler()
+            pile.unstack_element()
             continue
         
-        tree = pile.depiler()
+        tree = pile.unstack_element()
         child = Tree()
         balise , attributes = extract_datas(part)
         child.value = balise
         child.attributes = attributes
         tree.addchild(child)
-        pile.empiler(tree)
-        pile.empiler(child)
+        pile.stack_element(tree)
+        pile.stack_element(child)
 
 print(tree[0].attributes)
